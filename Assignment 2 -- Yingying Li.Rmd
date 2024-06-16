@@ -1,0 +1,55 @@
+---
+title: "Assignment 2 -- Alcohol Consumption"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+This dataset shows the average serving sizes of different kinds of alcohol per person for each country in the world. The data was collected using government records, statistics from the alcohol industry and the United Nation's Food and Agruculture Organization databased. By analyzing this dataset,we can observe the trend of alcohol assumption across the world. 
+
+The data is saved as a CSV file,in which the data are separated by commas. 
+
+Read data:
+```{r, echo = TRUE}
+#read data
+library(readr)
+drinks <- read_csv("C:\\Users\\lyy03\\OneDrive\\Documents\\Mcdaniel\\ANA 515\\Week 4\\drinks.csv")
+
+```
+Data Cleaning
+```{r, echo = TRUE}
+#data cleaning, some of the countries in this dataset are prohibited to drink legal wise. However, not all the 0 value rows are prohibited to drink, that could be caused by data collection issue. This step aims to keep the countries that are allowed to drink.
+library(dplyr)
+allowed_countries <- c("Monaco", "San Marino","North Korea") ## source:https://en.wikipedia.org/wiki/List_of_countries_with_alcohol_prohibition
+drinks_legal <- drinks %>% filter (!(rowSums(select(., beer_servings, spirit_servings, wine_servings)) == 0 & !country %in% allowed_countries))
+summary(drinks_legal)
+```
+```{r, echo = TRUE}
+rowcount <- nrow(drinks_legal)
+colcount <- ncol(drinks_legal)
+```
+This dataframe has `r rowcount` rows and `r colcount` columns. The names of the columns and a brief description of each are in the table below: 
+
+```{r, echo = TRUE}
+library(knitr)
+column_info <- data.frame(
+  Column_Name = c("country","beer_servings", "spirit_servings","wine_servings","total_litres_of_pure_alcohol"),
+  Description = c("Name of the country",
+                  "Average size of beer servings per person per year",
+                  "Average size of spirit servings per person per year",
+                  "Average size of wine servings per person per year",
+                  "Total litres of pure alcohol consumed per person per year")
+)
+kable(column_info, col.names = c("Column Name", "Description"), caption = "Description of dataset columns")
+```
+
+
+```{r, echo = TRUE}
+##Summary stats
+subset_drinks <- drinks_legal %>%
+      select(country, beer_servings, wine_servings)
+summary_stat <- summary(subset_drinks)
+print(summary_stat)
+```
